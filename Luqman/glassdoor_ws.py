@@ -16,7 +16,7 @@ import time
 
 def get_jobs(graduate, num_jobs, verbose):
     options = Options()
-    # options.add_argument('--headless=new')  # Runs Chrome in headless mode.
+    options.add_argument('--headless=new')  # Runs Chrome in headless mode.
     options.add_argument('--no-sandbox')  # Bypass OS security model
     options.add_argument('--disable-dev-shm-usage')  # Overcome limited resource problems
     options.binary_location = '/usr/bin/chromium-browser'  # Path to Chromium binary
@@ -42,7 +42,10 @@ def get_jobs(graduate, num_jobs, verbose):
             print("here")
 
             try:
-                job_button.click()  # You might
+                job_button.click()
+                show_button = WebDriverWait(wd,3).until(EC.element_to_be_clickable((By.CLASS_NAME, "JobDetails_showMore___Le6L")))
+                show_button.click()
+
             except:
                 try:
                     wd.find_element(By.CSS_SELECTOR,'body > div.ModalContainer > div.Modal > div.ContentSection > div.closeButtonWrapper > button').click()  # clicking to the X.
@@ -52,10 +55,12 @@ def get_jobs(graduate, num_jobs, verbose):
             time.sleep(1)
             # while not collected_successfully:
             try:
-                company_name = wd.find_element(By.XPATH,'//*[@id="695311"]/div[2]/span').text
-                job_title = wd.find_element(By.XPATH,'//*[@id="jd-job-title-1009178847654"]').text
-                job_description = wd.find_element(By.XPATH,
-                    '//*[@id="app-navigation"]/div[3]/div[2]/div[2]/div[1]/section/div[1]/div[1]').get_attribute('innerText')
+                company_names = wd.find_elements(By.CLASS_NAME,'EmployerProfile_employerName__qujuA')
+                company_name = company_names[-1].text
+                job_title = wd.find_element(By.XPATH, "//span[starts-with(@id, 'jd')]").text
+                job_descriptions = wd.find_elements(By.XPATH,
+                    "//div[starts-with(@class,'JobDetails_jobDescription')]")
+                job_description = job_descriptions[-1].get_attribute('innerText')
             # collected_successfully = True
             except:
                 time.sleep(5)
@@ -82,7 +87,6 @@ def get_jobs(graduate, num_jobs, verbose):
             break
     return pd.DataFrame(jobs)
 
-df = get_jobs('graduate',31, False)
+df = get_jobs('graduate',5, False)
 
 df.to_csv('glassdoor_jobs.csv')
-df.to_excel('glassdoor_jobs.xlsx')

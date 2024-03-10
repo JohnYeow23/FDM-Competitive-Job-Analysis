@@ -18,17 +18,19 @@ def get_jobs(graduate, num_jobs, verbose):
     options = Options()
     options.add_argument('--headless=new')  # Runs Chrome in headless mode.
     options.add_argument('--no-sandbox')  # Bypass OS security model
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36")
     options.add_argument('--disable-dev-shm-usage')  # Overcome limited resource problems
     options.binary_location = '/usr/bin/chromium-browser'  # Path to Chromium binary
-    options.add_experimental_option("detach", True)  # Prevent auto-closure
+    options.add_experimental_option("detach", True)   # Prevent auto-closure
+    options.add_argument('--window-size=1920,1080')
     wd = webdriver.Chrome(options=options)
-    wd.set_window_size(1120, 1000)
+
 
     url = "https://www.glassdoor.com.au/Job/australia-graduate-jobs-SRCH_IL.0,9_IN16_KO10,18.htm?sortBy=date_desc"
     wd.get(url)
     jobs = []
     while len(jobs) < num_jobs:
-        time.sleep(4)
+        time.sleep(5)
         job_buttons = wd.find_elements(By.CLASS_NAME,"JobCard_jobCardContainer___hKKI")
         try:
             wd.find_element(By.CSS_SELECTOR,'body > div.ModalContainer > div.Modal > div.ContentSection > div.closeButtonWrapper > button').click()  # clicking to the X.
@@ -43,7 +45,7 @@ def get_jobs(graduate, num_jobs, verbose):
 
             try:
                 job_button.click()
-                show_button = WebDriverWait(wd,3).until(EC.element_to_be_clickable((By.CLASS_NAME, "JobDetails_showMore___Le6L")))
+                show_button = WebDriverWait(wd,5).until(EC.element_to_be_clickable((By.CLASS_NAME, "JobDetails_showMore___Le6L")))
                 show_button.click()
 
             except:
@@ -52,7 +54,7 @@ def get_jobs(graduate, num_jobs, verbose):
                 except NoSuchElementException:
                     pass
 
-            time.sleep(1)
+            time.sleep(2)
             # while not collected_successfully:
             try:
                 company_names = wd.find_elements(By.CLASS_NAME,'EmployerProfile_employerName__qujuA')
